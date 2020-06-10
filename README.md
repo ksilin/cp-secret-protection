@@ -1,6 +1,10 @@
 # cp-secret-protection #
 
-Welcome to cp-secret-protection!
+A demo of the Confluent Secret Protection feature for clients:
+
+## Questions
+
+* is there a programmatic API to the secret protection feature to encode/decode programmatically, either without relying on the provider or by using the provider?
 
 ## Contribution policy ##
 
