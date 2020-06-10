@@ -1,10 +1,27 @@
 # cp-secret-protection #
 
-A demo of the Confluent Secret Protection feature for clients:
+A basic demo of the Confluent Secret Protection feature for clients:
 
-## Questions
+## important points
 
-* is there a programmatic API to the secret protection feature to encode/decode programmatically, either without relying on the provider or by using the provider?
+* add confluent Maven repository: https://packages.confluent.io/maven/
+* add dependency on `"io.confluent" % "kafka-client-plugins" % Version.kafka` for the secret provider
+* define client options `AbstractConfig.CONFIG_PROVIDERS_CONFIG` and `s"${AbstractConfig.CONFIG_PROVIDERS_CONFIG}.$configProvider.class"`
+* remember to set the `CONFLUENT_SECURITY_MASTER_KEY` env variable
+* programmatically set the configuration path: `s"""$${$configProvider:$secretFilePath/local.secret.file:client.properties/sasl.jaas.config}"""`
+
+## relevant KIPs
+
+* KIP-297: https://cwiki.apache.org/confluence/display/KAFKA/KIP-297%3A+Externalizing+Secrets+for+Connect+Configurations
+* KIP-421: https://cwiki.apache.org/confluence/pages/viewpage.action?pageId=100829515 
+
+## documentation
+
+https://docs.confluent.io/current/security/secrets.html
+
+## Open questions
+
+* how to use the secret protection feature to encode/decode programmatically, probably by using the provider?
 
 ## Contribution policy ##
 

@@ -17,19 +17,19 @@
 package com.example
 
 import org.apache.kafka.clients.CommonClientConfigs
-import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecords, KafkaConsumer}
-import org.apache.kafka.common.config.{AbstractConfig, SaslConfigs}
-import org.apache.kafka.common.serialization.{Serde, Serdes}
+import org.apache.kafka.clients.consumer.{ ConsumerConfig, ConsumerRecords, KafkaConsumer }
+import org.apache.kafka.common.config.{ AbstractConfig, SaslConfigs }
+import org.apache.kafka.common.serialization.{ Serde, Serdes }
 import os.Path
 
 import scala.collection.JavaConverters._
 
 class SecretProtectionTest extends munit.FunSuite {
 
-  val kafkaHost  = "localhost:9093"
+  val brokerHost                     = "localhost:9093"
   val byteSerdes: Serde[Array[Byte]] = Serdes.ByteArray()
 
-  val resPath: Path = os.pwd / "src" / "test" / "resources"
+  val secretFilePath: Path = os.pwd / "src" / "test" / "resources"
 
   test("client secret protection decrypted".only) {
 
@@ -38,7 +38,7 @@ class SecretProtectionTest extends munit.FunSuite {
     val topicName = "_confluent-metrics"
 
     val consumerJavaProps = new java.util.Properties
-    consumerJavaProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaHost)
+    consumerJavaProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerHost)
     consumerJavaProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
     consumerJavaProps.put(ConsumerConfig.GROUP_ID_CONFIG, "testGroup")
     consumerJavaProps.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
@@ -48,8 +48,9 @@ class SecretProtectionTest extends munit.FunSuite {
       s"${AbstractConfig.CONFIG_PROVIDERS_CONFIG}.$configProvider.class",
       "io.confluent.kafka.security.config.provider.SecurePassConfigProvider"
     )
-    consumerJavaProps.put( SaslConfigs.SASL_JAAS_CONFIG,
-      s"""$${securepass:$resPath/local.secret.file:client.properties/sasl.jaas.config}"""
+    consumerJavaProps.put(
+      SaslConfigs.SASL_JAAS_CONFIG,
+      s"""$${$configProvider:$secretFilePath/local.secret.file:client.properties/sasl.jaas.config}"""
     )
     // """org.apache.kafka.common.security.plain.PlainLoginModule required username="client" password="client-secret";"""
     val consumer = new KafkaConsumer[Array[Byte], Array[Byte]](
