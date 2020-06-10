@@ -18,6 +18,7 @@ package com.example
 
 import org.apache.kafka.clients.CommonClientConfigs
 import org.apache.kafka.clients.consumer.{ConsumerConfig, ConsumerRecords, KafkaConsumer}
+import org.apache.kafka.common.config.{AbstractConfig, SaslConfigs}
 import org.apache.kafka.common.serialization.{Serde, Serdes}
 import os.Path
 
@@ -32,6 +33,8 @@ class SecretProtectionTest extends munit.FunSuite {
 
   test("client secret protection decrypted".only) {
 
+    val configProvider = "securepass"
+
     val topicName = "_confluent-metrics"
 
     val consumerJavaProps = new java.util.Properties
@@ -39,14 +42,13 @@ class SecretProtectionTest extends munit.FunSuite {
     consumerJavaProps.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest")
     consumerJavaProps.put(ConsumerConfig.GROUP_ID_CONFIG, "testGroup")
     consumerJavaProps.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_PLAINTEXT")
-    consumerJavaProps.put("sasl.mechanism", "PLAIN")
-    consumerJavaProps.put("config.providers", "securepass")
+    consumerJavaProps.put(SaslConfigs.SASL_MECHANISM, "PLAIN")
+    consumerJavaProps.put(AbstractConfig.CONFIG_PROVIDERS_CONFIG, configProvider)
     consumerJavaProps.put(
-      "config.providers.securepass.class",
+      s"${AbstractConfig.CONFIG_PROVIDERS_CONFIG}.$configProvider.class",
       "io.confluent.kafka.security.config.provider.SecurePassConfigProvider"
     )
-    consumerJavaProps.put(
-      "sasl.jaas.config",
+    consumerJavaProps.put( SaslConfigs.SASL_JAAS_CONFIG,
       s"""$${securepass:$resPath/local.secret.file:client.properties/sasl.jaas.config}"""
     )
     // """org.apache.kafka.common.security.plain.PlainLoginModule required username="client" password="client-secret";"""
@@ -55,7 +57,7 @@ class SecretProtectionTest extends munit.FunSuite {
       byteSerdes.deserializer(),
       byteSerdes.deserializer()
     )
-    val sub: Unit                                       = consumer.subscribe(List(topicName).asJava)
+    consumer.subscribe(List(topicName).asJava)
     val pollDuration                                    = java.time.Duration.ofMillis(10000)
     val recs: ConsumerRecords[Array[Byte], Array[Byte]] = consumer.poll(pollDuration)
     assert(recs.count() > 0)
