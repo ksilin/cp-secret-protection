@@ -4,11 +4,11 @@ A basic demo of the Confluent Secret Protection feature for clients:
 
 ## important points
 
-* add confluent Maven repository: https://packages.confluent.io/maven/
-* add dependency on `"io.confluent" % "kafka-client-plugins" % Version.kafka` for the secret provider
+* add confluent Maven repository: https://packages.confluent.io/maven/ (see build.sbt)
+* add dependency on `"io.confluent" % "kafka-client-plugins" % Version.kafka` for the config provider (see build.sbt)
 * define client options `AbstractConfig.CONFIG_PROVIDERS_CONFIG` and `s"${AbstractConfig.CONFIG_PROVIDERS_CONFIG}.$configProvider.class"`
-* remember to set the `CONFLUENT_SECURITY_MASTER_KEY` env variable
-* programmatically set the configuration path: `s"""$${$configProvider:$secretFilePath/local.secret.file:client.properties/sasl.jaas.config}"""`
+* remember to set the `CONFLUENT_SECURITY_MASTER_KEY` env variable (see build.sbt)
+* programmatically set the configuration path (aka remote-config-file): `s"""$${$configProvider:$secretFilePath/local.secret.file:client.properties/sasl.jaas.config}"""`
 
 ## relevant KIPs
 

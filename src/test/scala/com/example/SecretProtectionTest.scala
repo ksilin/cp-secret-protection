@@ -33,9 +33,8 @@ class SecretProtectionTest extends munit.FunSuite {
 
   test("client secret protection decrypted".only) {
 
-    val configProvider = "securepass"
-
     val topicName = "_confluent-metrics"
+    val configProvider = "securepass"
 
     val consumerJavaProps = new java.util.Properties
     consumerJavaProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerHost)
